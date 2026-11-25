@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arena Statistik: Legendary Quest</title>
+<style>
+:root{--navy:#08152d;--panel:#122747;--gold:#ffd166;--cyan:#67e8f9;--white:#f4f7fb;--muted:#b8c7dc;--green:#5ee6a8;--red:#ff7b87}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Segoe UI,sans-serif;background:radial-gradient(circle at top,#1c4770 0,#0b1d39 42%,#050c1b 100%);color:var(--white);min-height:100vh}
+.wrap{max-width:900px;margin:auto;padding:22px}.hero,.panel{background:linear-gradient(145deg,rgba(25,55,91,.96),rgba(10,25,49,.97));border:1px solid #426080;border-radius:20px;box-shadow:0 16px 40px #0006;padding:24px}
+.hero{text-align:center;margin-top:3vh}.eyebrow{letter-spacing:.2em;color:var(--cyan);font-weight:800;font-size:.78rem}.hero h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:12px 0;color:var(--gold);text-shadow:0 3px 20px #ffc85755}.hero p{color:var(--muted);max-width:650px;margin:12px auto 22px}
+button{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:pointer;font-size:1rem;background:linear-gradient(100deg,#ffe08a,#f5ad37);color:#17233b}button:disabled{opacity:.45;cursor:not-allowed}.secondary{background:#294767;color:white;border:1px solid #63809e}.choices{display:grid;gap:11px;margin-top:20px}.choice{width:100%;text-align:left;background:#1b3658;color:white;border:1px solid #53708e;padding:15px;border-radius:12px}.choice:hover{border-color:var(--gold);background:#25466d}.choice.selected{border:2px solid var(--cyan)}.choice.correct{background:#14583f;border-color:var(--green)}.choice.wrong{background:#632c3b;border-color:var(--red)}
+.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-weight:700;margin-bottom:16px}.bar{height:10px;background:#061329;border-radius:20px;overflow:hidden;margin:10px 0 22px}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--gold));width:0;transition:width .3s}
+.q{font-size:1.25rem;line-height:1.5;font-weight:750}.feedback{margin-top:15px;padding:14px;border-radius:12px;background:#0b1b31;color:var(--muted);min-height:48px}.actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}.hidden{display:none}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.stat{background:#0a1b33;padding:14px;border-radius:12px;text-align:center}.stat strong{display:block;color:var(--gold);font-size:1.5rem}.zone{color:var(--cyan);font-weight:800;margin:0 0 8px}.small{color:var(--muted);font-size:.9rem}@media(max-width:600px){.wrap{padding:12px}.hero,.panel{padding:18px}.stats{grid-template-columns:1fr 1fr}.q{font-size:1.1rem}}
+</style>
+</head>
+<body><main class="wrap">
+<section id="start" class="hero">
+<div class="eyebrow">MOBA-INSPIRED LEARNING ARENA</div>
+<h1>ARENA STATISTIK<br>LEGENDARY QUEST</h1>
+<p>Masuki arena, jawab 20 soalan Statistik dan kumpulkan XP untuk mencapai rank Legendary. Setiap jawapan membawa anda lebih dekat kepada kemenangan!</p>
+<div class="stats"><div class="stat"><strong>20</strong><span>Soalan</span></div><div class="stat"><strong>4</strong><span>Zon cabaran</span></div><div class="stat"><strong>XP</strong><span>Ganjaran</span></div></div>
+<p class="small">Pilih jawapan terbaik bagi setiap soalan. Anda akan menerima maklum balas serta-merta.</p>
+<button onclick="startGame()">MULA PERTARUNGAN</button>
+</section>
+<section id="game" class="panel hidden">
+<div class="top"><span id="zone">WARRIOR ZONE</span><span id="progress">Soalan 1/20</span><span id="score">0 XP</span></div>
+<div class="bar"><span id="progressbar"></span></div>
+<p class="q" id="question"></p>
+<div class="choices" id="choices"></div>
+<div class="feedback" id="feedback">Pilih satu jawapan untuk meneruskan.</div>
+<div class="actions"><span class="small" id="streak">🔥 Streak: 0</span><button id="next" disabled onclick="nextQuestion()">Soalan seterusnya →</button></div>
+</section>
+<section id="result" class="panel hidden">
+<div class="eyebrow">QUEST COMPLETED</div><h1 style="color:var(--gold)">KEPUTUSAN AKHIR</h1>
+<div class="stats"><div class="stat"><strong id="finalscore">0</strong><span>XP</span></div><div class="stat"><strong id="correct">0/20</strong><span>Jawapan betul</span></div><div class="stat"><strong id="rank">Warrior</strong><span>Rank</span></div></div>
+<p id="message"></p><button onclick="startGame()">MAIN SEMULA</button>
+</section>
+</main>
+<script>
+const Q=[
+["Apakah maksud statistik?",["Kaedah mengumpul, menyusun, mempersembahkan dan mentafsir data","Kaedah melukis bentuk geometri","Kaedah mengira wang sahaja","Kaedah mengukur panjang"],0,"Statistik melibatkan pengumpulan, penyusunan, persembahan dan tafsiran data."],
+["Apakah tujuan utama jadual kekerapan?",["Menghias data","Meringkaskan data mengikut bilangan kejadian","Menukar semua data kepada peratus","Menentukan nilai maksimum sahaja"],1,"Jadual kekerapan meringkaskan data dan menunjukkan bilangan kemunculan."],
+["Antara berikut, yang manakah contoh data terkumpul dalam selang kelas?",["Bilangan adik-beradik setiap murid: 1, 2, 3","Warna kegemaran murid","Markah individu yang disenaraikan satu demi satu","Ketinggian murid dalam selang 140–149 cm, 150–159 cm dan seterusnya"],3,"Data terkumpul disusun dalam selang kelas."],
+["Apakah ciri yang sesuai bagi carta bar?",["Bar mesti bersambung tanpa ruang","Digunakan hanya untuk data berterusan","Lebar bar mesti berbeza","Bar diasingkan oleh ruang dan mewakili kategori"],3,"Carta bar menggunakan bar berasingan untuk kategori."],
+["Carta pai dibina berdasarkan pembahagian?",["Paksi mengufuk","Sudut sektor yang berkadar dengan bahagian data","Sempadan kelas","Kekerapan terkumpul sahaja"],1,"Saiz sektor carta pai mewakili bahagian daripada keseluruhan."],
+["Graf yang digunakan untuk menunjukkan kekerapan terkumpul ialah?",["Ogive","Carta pai","Carta bar","Histogram"],0,"Ogive ialah graf kekerapan terkumpul."],
+["Apakah ciri utama histogram?",["Bar mempunyai ruang antara satu sama lain","Bar bersambung untuk mewakili selang kelas","Hanya menunjukkan kategori nominal","Setiap bar mesti berbentuk bulatan"],1,"Histogram memaparkan data berterusan dengan bar yang bersambung."],
+["Median ialah?",["Nilai yang paling kerap muncul","Jumlah semua data dibahagi bilangan data","Nilai tengah selepas data disusun","Perbezaan nilai terbesar dan terkecil"],2,"Median ialah nilai tengah bagi data yang telah disusun."],
+["Mod ialah?",["Nilai yang paling kerap muncul","Nilai tengah data","Purata aritmetik","Nilai paling kecil"],0,"Mod ialah nilai yang mempunyai kekerapan tertinggi."],
+["Simbol yang digunakan untuk mewakili varians sampel dalam notasi ini ialah?",["x̄","s²","s","f"],1,"Dalam notasi yang digunakan dalam set soalan ini, s² mewakili varians."],
+["Apakah sempadan atas bagi selang kelas 45–49?",["49.0","49.4","50.0","49.5"],3,"Sempadan atas diperoleh dengan menambah 0.5 kepada had atas 49."],
+["Formula min bagi data terkumpul ialah?",["Σfx / Σf","Σf / Σx","Σx / Σf²","Σf × Σx"],0,"Min data terkumpul ialah jumlah hasil darab titik tengah dan kekerapan dibahagi jumlah kekerapan."],
+["Jumlah 15 kotak mempunyai berat 13 kg setiap satu? Jika kekerapan yang diketahui ialah 2, 1, 3 dan 2 bagi empat kategori, berapakah kekerapan yang belum diketahui?",["5","6","8","7"],3,"Jumlah kekerapan diketahui ialah 8. Maka 15 − 8 = 7."],
+["Jadual bilangan matlamat: x = 0,1,2,3,4 dan f = 3,8,10,4,5. Berapakah min?",["1.5","1.8","2.0","2.5"],2,"Σf = 30 dan Σfx = 60. Min = 60/30 = 2."],
+["Cari median bagi data 7, 3, 7, 2, 5, 3, 7.",["3","4","5","7"],2,"Susunan menaik ialah 2, 3, 3, 5, 7, 7, 7. Nilai tengah ialah 5."],
+["Kelas ketinggian pemain bola keranjang yang mempunyai kekerapan tertinggi ialah 163–167 cm. Apakah titik tengah kelas itu?",["160","162","165","167"],2,"Titik tengah = (163 + 167)/2 = 165 cm."],
+["Berdasarkan jadual ketinggian pemain: 148–152:5, 153–157:7, 158–162:8, 163–167:16, 168–172:10, 173–177:4. Kelas median ialah?",["163–167","158–162","168–172","153–157"],0,"Jumlah kekerapan ialah 50. Pemerhatian median ke-25 berada dalam kelas 163–167."],
+["Berdasarkan histogram bilangan buku, selang kelas yang mempunyai kekerapan tertinggi ialah 5–8. Apakah selang kelas mod?",["1–4","9–12","13–16","5–8"],3,"Kelas mod ialah selang dengan kekerapan tertinggi."],
+["Berdasarkan data ketinggian anak pokok, titik tengah terendah ialah 87 cm dan titik tengah tertinggi ialah 122 cm. Anggaran julat ialah?",["25 cm","30 cm","35 cm","40 cm"],2,"Julat = 122 − 87 = 35 cm."],
+["Bagi data 1, 7, 2, 5, min ialah 3.75 dan varians ialah 5.69. Sisihan piawai hampir kepada?",["1.69","2.00","2.38","5.69"],2,"Sisihan piawai ialah punca kuasa dua varians: √5.69 ≈ 2.38."]
+];
+let i=0,score=0,streak=0,correct=0,answered=false;
+function startGame(){i=0;score=0;streak=0;correct=0;document.getElementById('start').classList.add('hidden');document.getElementById('result').classList.add('hidden');document.getElementById('game').classList.remove('hidden');render()}
+function render(){answered=false;let q=Q[i];document.getElementById('zone').textContent=['WARRIOR ZONE','ELITE ZONE','MASTER ZONE','LEGEND ZONE'][Math.floor(i/5)];document.getElementById('progress').textContent=`Soalan ${i+1}/20`;document.getElementById('score').textContent=score+' XP';document.getElementById('progressbar').style.width=((i)/20*100)+'%';document.getElementById('question').textContent=q[0];document.getElementById('feedback').textContent='Pilih satu jawapan untuk meneruskan.';document.getElementById('next').disabled=true;document.getElementById('next').textContent=i===19?'Lihat keputusan →':'Soalan seterusnya →';document.getElementById('streak').textContent='🔥 Streak: '+streak;let box=document.getElementById('choices');box.innerHTML='';q[1].forEach((a,n)=>{let b=document.createElement('button');b.className='choice';b.textContent='ABCD'[n]+'. '+a;b.onclick=()=>answer(n,b);box.appendChild(b)})}
+function answer(n,btn){if(answered)return;answered=true;let q=Q[i],buttons=[...document.querySelectorAll('.choice')];buttons.forEach((b,k)=>{b.disabled=true;if(k===q[2])b.classList.add('correct')});if(n===q[2]){correct++;streak++;score+=100+Math.min(streak-1,5)*20;document.getElementById('feedback').innerHTML='✅ <b>Betul!</b> '+q[3]}else{streak=0;btn.classList.add('wrong');document.getElementById('feedback').innerHTML='❌ <b>Belum tepat.</b> '+q[3]}document.getElementById('score').textContent=score+' XP';document.getElementById('streak').textContent='🔥 Streak: '+streak;document.getElementById('next').disabled=false;document.getElementById('progressbar').style.width=((i+1)/20*100)+'%'}
+function nextQuestion(){if(!answered)return;if(i<19){i++;render()}else finish()}
+function finish(){document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('finalscore').textContent=score;document.getElementById('correct').textContent=correct+'/20';let rank=correct>=18?'Legend':correct>=15?'Master':correct>=10?'Elite':'Warrior';document.getElementById('rank').textContent=rank;document.getElementById('message').textContent=`Anda menjawab ${correct} daripada 20 soalan dengan betul. ${correct>=18?'Prestasi hebat — anda menguasai arena!':correct>=10?'Teruskan latihan untuk naik ke rank seterusnya.':'Ulang kaji topik dan cuba lagi untuk meningkatkan XP.'}`}
+</script></body></html>

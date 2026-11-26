@@ -15,13 +15,31 @@ button{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:poin
 </style>
 </head>
 <body><main class="wrap">
+
 <section id="start" class="hero">
-<div class="eyebrow">MOBA-INSPIRED LEARNING ARENA</div>
-<h1>ARENA STATISTIK<br>LEGENDARY QUEST</h1>
-<p>Masuki arena, jawab 20 soalan Statistik dan kumpulkan XP untuk mencapai rank Legendary. Setiap jawapan membawa anda lebih dekat kepada kemenangan!</p>
-<div class="stats"><div class="stat"><strong>20</strong><span>Soalan</span></div><div class="stat"><strong>4</strong><span>Zon cabaran</span></div><div class="stat"><strong>XP</strong><span>Ganjaran</span></div></div>
-<p class="small">Pilih jawapan terbaik bagi setiap soalan. Anda akan menerima maklum balas serta-merta.</p>
-<button onclick="startGame()">MULA PERTARUNGAN</button>
+  <div class="eyebrow">MOBA-INSPIRED LEARNING ARENA</div>
+  <h1>ARENA STATISTIK<br>LEGENDARY QUEST</h1>
+  <p>Masuki arena, jawab 20 soalan Statistik dan kumpulkan XP untuk mencapai rank Legendary. Setiap jawapan membawa anda lebih dekat kepada kemenangan!</p>
+
+  <div class="stats">
+    <div class="stat"><strong>20</strong><span>Soalan</span></div>
+    <div class="stat"><strong>4</strong><span>Zon cabaran</span></div>
+    <div class="stat"><strong>XP</strong><span>Ganjaran</span></div>
+  </div>
+
+  <p class="small">Pilih jawapan terbaik bagi setiap soalan. Anda akan menerima maklum balas serta-merta.</p>
+
+  <div style="max-width:420px;margin:20px auto;text-align:left;">
+    <label for="studentName">Nama murid</label>
+    <input id="studentName" type="text" placeholder="Masukkan nama penuh" required
+      style="width:100%;padding:12px;margin:6px 0 14px;border-radius:8px;">
+
+    <label for="studentClass">Kelas</label>
+    <input id="studentClass" type="text" placeholder="Contoh: 4 Bestari" required
+      style="width:100%;padding:12px;margin:6px 0 14px;border-radius:8px;">
+  </div>
+
+  <button onclick="startGame()">MULA PERTARUNGAN</button>
 </section>
 <section id="game" class="panel hidden">
 <div class="top"><span id="zone">WARRIOR ZONE</span><span id="progress">Soalan 1/20</span><span id="score">0 XP</span></div>
@@ -38,6 +56,7 @@ button{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:poin
 </section>
 </main>
 <script>
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyzxc-nEpKBeobxbAgcGu1lat28D2AQoKR7WwR2VfxmSFNZUqKyZy-gnZODIOaTCXYOoQ/exec";
 const Q=[
 ["Apakah maksud statistik?",["Kaedah mengumpul, menyusun, mempersembahkan dan mentafsir data","Kaedah melukis bentuk geometri","Kaedah mengira wang sahaja","Kaedah mengukur panjang"],0,"Statistik melibatkan pengumpulan, penyusunan, persembahan dan tafsiran data."],
 ["Apakah tujuan utama jadual kekerapan?",["Menghias data","Meringkaskan data mengikut bilangan kejadian","Menukar semua data kepada peratus","Menentukan nilai maksimum sahaja"],1,"Jadual kekerapan meringkaskan data dan menunjukkan bilangan kemunculan."],
@@ -61,9 +80,104 @@ const Q=[
 ["Bagi data 1, 7, 2, 5, min ialah 3.75 dan varians ialah 5.69. Sisihan piawai hampir kepada?",["1.69","2.00","2.38","5.69"],2,"Sisihan piawai ialah punca kuasa dua varians: √5.69 ≈ 2.38."]
 ];
 let i=0,score=0,streak=0,correct=0,answered=false;
-function startGame(){i=0;score=0;streak=0;correct=0;document.getElementById('start').classList.add('hidden');document.getElementById('result').classList.add('hidden');document.getElementById('game').classList.remove('hidden');render()}
+let studentAnswers=Array(20).fill("");
+let studentName="";
+let studentClass="";
+let attemptStartTime=0;
+let submissionStarted=false;
+function startGame(){
+  studentName=document.getElementById('studentName').value.trim();
+  studentClass=document.getElementById('studentClass').value.trim();
+
+  if(!studentName || !studentClass){
+    alert('Sila masukkan nama dan kelas terlebih dahulu.');
+    return;
+  }
+
+  i=0;
+  score=0;
+  streak=0;
+  correct=0;
+  answered=false;
+  studentAnswers=Array(20).fill("");
+  submissionStarted=false;
+  attemptStartTime=Date.now();
+
+  document.getElementById('start').classList.add('hidden');
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('game').classList.remove('hidden');
+  render();
+}
 function render(){answered=false;let q=Q[i];document.getElementById('zone').textContent=['WARRIOR ZONE','ELITE ZONE','MASTER ZONE','LEGEND ZONE'][Math.floor(i/5)];document.getElementById('progress').textContent=`Soalan ${i+1}/20`;document.getElementById('score').textContent=score+' XP';document.getElementById('progressbar').style.width=((i)/20*100)+'%';document.getElementById('question').textContent=q[0];document.getElementById('feedback').textContent='Pilih satu jawapan untuk meneruskan.';document.getElementById('next').disabled=true;document.getElementById('next').textContent=i===19?'Lihat keputusan →':'Soalan seterusnya →';document.getElementById('streak').textContent='🔥 Streak: '+streak;let box=document.getElementById('choices');box.innerHTML='';q[1].forEach((a,n)=>{let b=document.createElement('button');b.className='choice';b.textContent='ABCD'[n]+'. '+a;b.onclick=()=>answer(n,b);box.appendChild(b)})}
-function answer(n,btn){if(answered)return;answered=true;let q=Q[i],buttons=[...document.querySelectorAll('.choice')];buttons.forEach((b,k)=>{b.disabled=true;if(k===q[2])b.classList.add('correct')});if(n===q[2]){correct++;streak++;score+=100+Math.min(streak-1,5)*20;document.getElementById('feedback').innerHTML='✅ <b>Betul!</b> '+q[3]}else{streak=0;btn.classList.add('wrong');document.getElementById('feedback').innerHTML='❌ <b>Belum tepat.</b> '+q[3]}document.getElementById('score').textContent=score+' XP';document.getElementById('streak').textContent='🔥 Streak: '+streak;document.getElementById('next').disabled=false;document.getElementById('progressbar').style.width=((i+1)/20*100)+'%'}
-function nextQuestion(){if(!answered)return;if(i<19){i++;render()}else finish()}
-function finish(){document.getElementById('game').classList.add('hidden');document.getElementById('result').classList.remove('hidden');document.getElementById('finalscore').textContent=score;document.getElementById('correct').textContent=correct+'/20';let rank=correct>=18?'Legend':correct>=15?'Master':correct>=10?'Elite':'Warrior';document.getElementById('rank').textContent=rank;document.getElementById('message').textContent=`Anda menjawab ${correct} daripada 20 soalan dengan betul. ${correct>=18?'Prestasi hebat — anda menguasai arena!':correct>=10?'Teruskan latihan untuk naik ke rank seterusnya.':'Ulang kaji topik dan cuba lagi untuk meningkatkan XP.'}`}
+function answer(n,btn){
+if(answered)return;
+answered=true;
+studentAnswers[i]='ABCD'[n];let q=Q[i],buttons=[...document.querySelectorAll('.choice')];buttons.forEach((b,k)=>{b.disabled=true;if(k===q[2])b.classList.add('correct')});if(n===q[2]){correct++;streak++;score+=100+Math.min(streak-1,5)*20;document.getElementById('feedback').innerHTML='✅ <b>Betul!</b> '+q[3]}else{streak=0;btn.classList.add('wrong');document.getElementById('feedback').innerHTML='❌ <b>Belum tepat.</b> '+q[3]}document.getElementById('score').textContent=score+' XP';document.getElementById('streak').textContent='🔥 Streak: '+streak;document.getElementById('next').disabled=false;document.getElementById('progressbar').style.width=((i+1)/20*100)+'%'}
+function nextQuestion()
+function submitResult(){
+  if(submissionStarted) return;
+  submissionStarted=true;
+
+  const attemptId = 'ATT-' + Date.now() + '-' +
+    Math.random().toString(36).slice(2,8);
+
+  const payload = {
+    attemptId: attemptId,
+    nama: studentName,
+    kelas: studentClass,
+    answers: studentAnswers,
+    durationSeconds: Math.round((Date.now()-attemptStartTime)/1000)
+  };
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = BACKEND_URL;
+  form.target = 'submissionFrame';
+  form.style.display = 'none';
+
+  const field = document.createElement('input');
+  field.type = 'hidden';
+  field.name = 'payload';
+  field.value = JSON.stringify(payload);
+  form.appendChild(field);
+
+  let frame = document.getElementById('submissionFrame');
+  if(!frame){
+    frame = document.createElement('iframe');
+    frame.name = 'submissionFrame';
+    frame.id = 'submissionFrame';
+    frame.style.display = 'none';
+    document.body.appendChild(frame);
+  }
+
+  document.body.appendChild(form);
+  form.submit();
+  form.remove();
+
+  document.getElementById('message').textContent +=
+    ' Keputusan sedang dihantar ke sistem rekod.';
+}
+{if(!answered)return;if(i<19){i++;render()}else finish()}
+function finish()
+finish(){
+  document.getElementById('game').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('finalscore').textContent=score;
+  document.getElementById('correct').textContent=correct+'/20';
+
+  let rank=correct>=18?'Legend':
+           correct>=15?'Master':
+           correct>=10?'Elite':'Warrior';
+
+  document.getElementById('rank').textContent=rank;
+
+  document.getElementById('message').textContent=
+    `Anda menjawab ${correct} daripada 20 soalan dengan betul. ${
+      correct>=18?'Prestasi hebat — anda menguasai arena!':
+      correct>=10?'Teruskan latihan untuk naik ke rank seterusnya.':
+      'Ulang kaji topik dan cuba lagi untuk meningkatkan XP.'
+    }`;
+
+  submitResult();
+}
 </script></body></html>

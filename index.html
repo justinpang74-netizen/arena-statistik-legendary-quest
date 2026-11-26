@@ -38,8 +38,7 @@ button{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:poin
     <input id="studentClass" type="text" placeholder="Contoh: 4 Bestari" required
       style="width:100%;padding:12px;margin:6px 0 14px;border-radius:8px;">
   </div>
-
-  <button onclick="startGame()">MULA PERTARUNGAN</button>
+<button onclick="startGame()">MULA PERTARUNGAN</button>
 </section>
 <section id="game" class="panel hidden">
 <div class="top"><span id="zone">WARRIOR ZONE</span><span id="progress">Soalan 1/20</span><span id="score">0 XP</span></div>
@@ -113,7 +112,17 @@ function answer(n,btn){
 if(answered)return;
 answered=true;
 studentAnswers[i]='ABCD'[n];let q=Q[i],buttons=[...document.querySelectorAll('.choice')];buttons.forEach((b,k)=>{b.disabled=true;if(k===q[2])b.classList.add('correct')});if(n===q[2]){correct++;streak++;score+=100+Math.min(streak-1,5)*20;document.getElementById('feedback').innerHTML='✅ <b>Betul!</b> '+q[3]}else{streak=0;btn.classList.add('wrong');document.getElementById('feedback').innerHTML='❌ <b>Belum tepat.</b> '+q[3]}document.getElementById('score').textContent=score+' XP';document.getElementById('streak').textContent='🔥 Streak: '+streak;document.getElementById('next').disabled=false;document.getElementById('progressbar').style.width=((i+1)/20*100)+'%'}
-function nextQuestion()
+function nextQuestion(){
+  if(!answered) return;
+
+  if(i<19){
+    i++;
+    render();
+  }else{
+    finish();
+  }
+}
+
 function submitResult(){
   if(submissionStarted) return;
   submissionStarted=true;
@@ -142,6 +151,7 @@ function submitResult(){
   form.appendChild(field);
 
   let frame = document.getElementById('submissionFrame');
+
   if(!frame){
     frame = document.createElement('iframe');
     frame.name = 'submissionFrame';
@@ -157,8 +167,28 @@ function submitResult(){
   document.getElementById('message').textContent +=
     ' Keputusan sedang dihantar ke sistem rekod.';
 }
-{if(!answered)return;if(i<19){i++;render()}else finish()}
-function finish()
+
+function finish(){
+  document.getElementById('game').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('finalscore').textContent=score;
+  document.getElementById('correct').textContent=correct+'/20';
+
+  let rank=correct>=18?'Legend':
+           correct>=15?'Master':
+           correct>=10?'Elite':'Warrior';
+
+  document.getElementById('rank').textContent=rank;
+
+  document.getElementById('message').textContent=
+    `Anda menjawab ${correct} daripada 20 soalan dengan betul. ${
+      correct>=18?'Prestasi hebat — anda menguasai arena!':
+      correct>=10?'Teruskan latihan untuk naik ke rank seterusnya.':
+      'Ulang kaji topik dan cuba lagi untuk meningkatkan XP.'
+    }`;
+
+  submitResult();
+}
 finish(){
   document.getElementById('game').classList.add('hidden');
   document.getElementById('result').classList.remove('hidden');

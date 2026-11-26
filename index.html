@@ -189,25 +189,4 @@ function finish(){
 
   submitResult();
 }
-finish(){
-  document.getElementById('game').classList.add('hidden');
-  document.getElementById('result').classList.remove('hidden');
-  document.getElementById('finalscore').textContent=score;
-  document.getElementById('correct').textContent=correct+'/20';
-
-  let rank=correct>=18?'Legend':
-           correct>=15?'Master':
-           correct>=10?'Elite':'Warrior';
-
-  document.getElementById('rank').textContent=rank;
-
-  document.getElementById('message').textContent=
-    `Anda menjawab ${correct} daripada 20 soalan dengan betul. ${
-      correct>=18?'Prestasi hebat — anda menguasai arena!':
-      correct>=10?'Teruskan latihan untuk naik ke rank seterusnya.':
-      'Ulang kaji topik dan cuba lagi untuk meningkatkan XP.'
-    }`;
-
-  submitResult();
-}
 </script></body></html>
